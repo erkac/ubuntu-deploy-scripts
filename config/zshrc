@@ -104,5 +104,41 @@ source $ZSH/oh-my-zsh.sh
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 
+POWERLEVEL9K_SHORTEN_DIR_LENGTH=2
+
+# Add some colours
+alias colourify='/usr/bin/grc -es --colour=auto'
+alias configure='colourify ./configure'
+alias df='colourify df'
+alias diff='colourify diff'
+alias dig='colourify dig'
+alias gcc='colourify gcc'
+alias head='colourify head'
+alias ifconfig='colourify ifconfig'
+alias mount='colourify mount'
+alias netstat='colourify netstat'
+alias nmap='colourify nmap'
+alias ping='colourify ping'
+alias ps='colourify ps'
+alias tail='colourify tail'
+alias traceroute='colourify /usr/sbin/traceroute'
+
+alias hosts='sudo vim /etc/hosts'
+
+# xmllint like jq
+alias xq='xmllint --format -'
+
+# DevOps
+alias tf='terraform'
+alias ap='ansible-playbook'
+
+# git
+function git-upload {
+    git add --all
+    git commit -m ${1:-random update}
+    git push -u origin master
+    git pull
+}
+
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
