@@ -9,12 +9,14 @@ function printLine()
 
 function addHosts()
 {
+  if [ ! $( grep -c generic /etc/hosts ) -eq "1" ]; then
 echo "
 
 # generic
 8.8.8.8     google
 
 " >> /etc/hosts
+fi
 
 }
 
@@ -49,8 +51,8 @@ sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/too
 
 echo "Installing powerlevel10k theme..."
 git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/themes/powerlevel10k
-cp configs/p10kzsh $HOME/.p10kzsh
-chmod 644 $HOME/.p10kzsh
+cp configs/p10kzsh $HOME/.p10k.zsh
+chmod 644 $HOME/.p10k.zsh
 
 echo "Installing plugins..."
 git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
