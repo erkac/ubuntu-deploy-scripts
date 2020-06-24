@@ -7,6 +7,17 @@ function printLine()
 	echo "======================================="
 }
 
+function addHosts()
+{
+  sudo echo "
+
+# generic
+8.8.8.8     google
+
+" >> /etc/hosts
+
+}
+
 originalPath=`pwd`
 
 amIRoot=`whoami`
@@ -60,12 +71,12 @@ chmod 644 .vimrc
 printLine
 
 echo "Add entries to hosts file..."
-sudo echo "
-
-# generic
-8.8.8.8     google
-
-" >> /etc/hosts
+if [ "$EUID" -ne 0 ]; then
+  apt -y install sudo
+  sudo addHosts
+else
+  addHosts
+fi
 
 #echo "iptables..."
 #${CURL_BIN} /etc/iptables.rules ${DOWNLOAD_HOST}/iptables.rules
