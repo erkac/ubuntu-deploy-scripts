@@ -23,23 +23,32 @@ if [ "${amIRoot}" == "root" ]; then
     fi
 
     echo "Installing sw..."
-    apt -y install nmap screen bzip2 psmisc htop mc grc iputils-ping wafw00f grc
+    apt -y install nmap screen bzip2 psmisc htop mc grc iputils-ping wafw00f grc zsh
     printLine
 fi
 
 echo "Shell..."
+
+echo "zshrc..."
+cp configs/zshrc $HOME/.zshrc
+chmod 644 $HOME/.zshrc
+
 echo "Installing Oh-my-zsh..."
 sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 
 echo "Installing powerlevel10k theme..."
 git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/themes/powerlevel10k
+cp configs/p10kzsh $HOME/.p10kzsh
+chmod 644 $HOME/.p10kzsh
 
 echo "Installing plugins..."
 git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
 git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
 
-echo "Changing the default shell to zsh..."
-chsh /usr/bin/zsh
+if [ -f /usr/bin/zsh ]; then
+    echo "Changing the default shell to zsh..."
+    chsh /usr/bin/zsh
+fi
 
 printLine
 
