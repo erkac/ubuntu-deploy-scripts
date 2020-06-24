@@ -9,7 +9,7 @@ function printLine()
 
 function addHosts()
 {
-  sudo echo "
+echo "
 
 # generic
 8.8.8.8     google
