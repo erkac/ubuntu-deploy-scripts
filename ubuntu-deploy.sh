@@ -55,7 +55,7 @@ printLine
 echo "vim..."
 mkdir -p $HOME/.vim/colors/
 cp configs/vim_colors_solarized.vim $HOME/.vim/colors/solarized.vim
-cp ./configs/vimrc $HOME/.vimrc
+cp configs/vimrc $HOME/.vimrc
 chmod 644 .vimrc
 printLine
 
