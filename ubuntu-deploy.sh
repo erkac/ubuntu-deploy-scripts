@@ -58,7 +58,7 @@ git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:
 
 if [ -f /usr/bin/zsh ]; then
     echo "Changing the default shell to zsh..."
-    chsh /usr/bin/zsh
+    chsh $USER -s /usr/bin/zsh
 fi
 
 printLine
@@ -67,7 +67,7 @@ echo "vim..."
 mkdir -p $HOME/.vim/colors/
 cp configs/vim_colors_solarized.vim $HOME/.vim/colors/solarized.vim
 cp configs/vimrc $HOME/.vimrc
-chmod 644 .vimrc
+chmod 644 $HOME/.vimrc
 printLine
 
 echo "Add entries to hosts file..."
