@@ -40,6 +40,11 @@ if [ "${amIRoot}" == "root" ]; then
     printLine
 fi
 
+if [ ! -f /usr/bin/zsh ]; then
+  echo "Error: No zsh installed... exiting..."
+  exit 1
+fi
+
 echo "Shell..."
 
 echo "zshrc..."
