@@ -77,11 +77,9 @@ cp configs/vimrc $HOME/.vimrc
 chmod 644 $HOME/.vimrc
 printLine
 
-echo "Add entries to hosts file..."
-if [ "$EUID" -ne 0 ]; then
-  #apt -y install sudo
-  sudo addHosts
-else
+
+if [ "$EUID" -eq 0 ]; then
+  echo "Add entries to hosts file..."
   addHosts
 fi
 
