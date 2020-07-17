@@ -79,7 +79,7 @@ printLine
 
 echo "Add entries to hosts file..."
 if [ "$EUID" -ne 0 ]; then
-  apt -y install sudo
+  #apt -y install sudo
   sudo addHosts
 else
   addHosts
