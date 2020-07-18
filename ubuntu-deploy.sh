@@ -45,10 +45,14 @@ if [ ! -f /usr/bin/zsh ]; then
   exit 1
 fi
 
+printLine
+
 echo "Shell..."
 
 echo "Installing Oh-my-zsh..."
-sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+curl -o install.sh -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh
+chmod +x install.sh
+sh ./install.sh --unattended
 
 echo "Installing powerlevel10k theme..."
 git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/themes/powerlevel10k
