@@ -17,3 +17,6 @@ do-vlab-full.json
 
 # Ansible
 hosts
+
+# oh-my-zsh
+install.sh
