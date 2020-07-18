@@ -47,10 +47,6 @@ fi
 
 echo "Shell..."
 
-echo "zshrc..."
-cp configs/zshrc $HOME/.zshrc
-chmod 644 $HOME/.zshrc
-
 echo "Installing Oh-my-zsh..."
 sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 
@@ -63,10 +59,9 @@ echo "Installing plugins..."
 git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
 git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
 
-if [ -f /usr/bin/zsh ]; then
-    echo "Changing the default shell to zsh..."
-    chsh $USER -s /usr/bin/zsh
-fi
+echo "zshrc..."
+cp configs/zshrc $HOME/.zshrc
+chmod 644 $HOME/.zshrc
 
 printLine
 
@@ -76,7 +71,6 @@ cp configs/vim_colors_solarized.vim $HOME/.vim/colors/solarized.vim
 cp configs/vimrc $HOME/.vimrc
 chmod 644 $HOME/.vimrc
 printLine
-
 
 if [ "$EUID" -eq 0 ]; then
   echo "Add entries to hosts file..."
@@ -121,6 +115,11 @@ if [ "${QUESTION}" == "y" ]; then
 #    " >> /etc/hosts
 fi
 printLine
+
+if [ -f /usr/bin/zsh ]; then
+    echo "Changing the default shell to zsh..."
+    chsh $USER -s /usr/bin/zsh
+fi
 
 cd $originalPath
 
