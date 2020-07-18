@@ -35,39 +35,10 @@ if [ "${amIRoot}" == "root" ]; then
         printLine
     fi
 
-    echo "Installing sw..."
+    echo "Installing usefull software..."
     apt -y install nmap screen bzip2 psmisc htop mc grc iputils-ping wafw00f grc zsh
     printLine
 fi
-
-if [ ! -f /usr/bin/zsh ]; then
-  echo "Error: No zsh installed... exiting..."
-  exit 1
-fi
-
-printLine
-
-echo "Shell..."
-
-echo "Installing Oh-my-zsh..."
-curl -o install.sh -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh
-chmod +x install.sh
-sh ./install.sh --unattended
-
-echo "Installing powerlevel10k theme..."
-git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/themes/powerlevel10k
-cp configs/p10kzsh $HOME/.p10k.zsh
-chmod 644 $HOME/.p10k.zsh
-
-echo "Installing plugins..."
-git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
-git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
-
-echo "zshrc..."
-cp configs/zshrc $HOME/.zshrc
-chmod 644 $HOME/.zshrc
-
-printLine
 
 echo "vim..."
 mkdir -p $HOME/.vim/colors/
@@ -80,6 +51,51 @@ if [ "$EUID" -eq 0 ]; then
   echo "Add entries to hosts file..."
   addHosts
 fi
+
+if [ ! -f /usr/bin/zsh ]; then
+  echo "Error: No zsh installed... exiting..."
+  exit 1
+  printLine
+fi
+
+echo
+echo "Shell..."
+
+echo
+echo "Installing Oh-my-zsh..."
+curl -o install.sh -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh
+chmod +x install.sh
+sh ./install.sh --unattended
+
+echo
+echo "Installing powerlevel10k theme..."
+git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/themes/powerlevel10k
+cp configs/p10kzsh $HOME/.p10k.zsh
+chmod 644 $HOME/.p10k.zsh
+
+echo
+echo "Installing plugins..."
+git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
+git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
+
+echo
+echo "Copy zshrc..."
+cp configs/zshrc $HOME/.zshrc
+chmod 644 $HOME/.zshrc
+
+printLine
+
+QUESTION=""
+echo "Do you want to change default shell to zsh? (y/N)"
+read QUESTION
+if [ "${QUESTION}" == "y" ]; then
+  if [ -f /usr/bin/zsh ]; then
+    echo "Changing the default shell to zsh..."
+    chsh $USER -s /usr/bin/zsh
+  fi
+fi
+
+printLine
 
 #echo "iptables..."
 #${CURL_BIN} /etc/iptables.rules ${DOWNLOAD_HOST}/iptables.rules
@@ -120,11 +136,7 @@ if [ "${QUESTION}" == "y" ]; then
 fi
 printLine
 
-if [ -f /usr/bin/zsh ]; then
-    echo "Changing the default shell to zsh..."
-    chsh $USER -s /usr/bin/zsh
-fi
-
 cd $originalPath
 
-# TODO
+# TODO/Issues
+# - for some reason the instalation of the oh-my-zsh fails because it is instaled into \~ subfolder instead of ~ for non-root users
