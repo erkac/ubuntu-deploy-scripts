@@ -14,4 +14,3 @@ What it does:
     * *zsh-syntax-highlighting*
 * Customize zshrc
 * Change default shell to zsh
-* (Optionaly) install some DDoS tools...

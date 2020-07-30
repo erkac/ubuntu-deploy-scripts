@@ -108,33 +108,33 @@ printLine
 #/etc/network/if-pre-up.d/iptablesload
 #printLine
 
-QUESTION=""
-echo "Deploy H4X0r t00lZ? (y/N)"
-read QUESTION
-if [ "${QUESTION}" == "y" ]; then
-    mkdir -p $HOME/ddos
-    apt-get install slowhttptest
+# QUESTION=""
+# echo "Deploy H4X0r t00lZ? (y/N)"
+# read QUESTION
+# if [ "${QUESTION}" == "y" ]; then
+#     mkdir -p $HOME/ddos
+#     apt-get install slowhttptest
    
-    ${CURL_BIN} $HOME/ddos/httpflooder.pl https://raw.githubusercontent.com/ddusnoki/httpflooder/master/httpflooder/httpflooder.pl
-    chmod 755 $HOME/ddos/httpflooder.pl
+#     ${CURL_BIN} $HOME/ddos/httpflooder.pl https://raw.githubusercontent.com/ddusnoki/httpflooder/master/httpflooder/httpflooder.pl
+#     chmod 755 $HOME/ddos/httpflooder.pl
 
-    cp ./tools/hulk.py $HOME/ddos/hulk.py
-    chmod 755 $HOME/ddos/hulk.py
+#     cp ./tools/hulk.py $HOME/ddos/hulk.py
+#     chmod 755 $HOME/ddos/hulk.py
 
-    ${CURL_BIN} $HOME/ddos/phantomjs-2.1.1-linux-x86_64.tar.bz2 https://bitbucket.org/ariya/phantomjs/downloads/phantomjs-2.1.1-linux-x86_64.tar.bz2
-    cp ./tools/L7DDOS.js $HOME/ddos/L7DDOS.js
-    cd $HOME/ddos/
-    tar xvjf phantomjs-2.1.1-linux-x86_64.tar.bz2
+#     ${CURL_BIN} $HOME/ddos/phantomjs-2.1.1-linux-x86_64.tar.bz2 https://bitbucket.org/ariya/phantomjs/downloads/phantomjs-2.1.1-linux-x86_64.tar.bz2
+#     cp ./tools/L7DDOS.js $HOME/ddos/L7DDOS.js
+#     cd $HOME/ddos/
+#     tar xvjf phantomjs-2.1.1-linux-x86_64.tar.bz2
 
-    echo 'export QT_QPA_PLATFORM="offscreen"' >> $HOME/.bashrc
-    echo 'alias phantomjs="$HOME/ddos/phantomjs-2.1.1-linux-x86_64/bin/phantomjs"' >> $HOME/.aliases
-    echo 'export QT_QPA_PLATFORM=offscreen' >> $HOME/.bash_profile
-#    echo "
-## L7 DoS Demo
-#52.16.253.235   www.trnava-live.sk
-#    " >> /etc/hosts
-fi
-printLine
+#     echo 'export QT_QPA_PLATFORM="offscreen"' >> $HOME/.bashrc
+#     echo 'alias phantomjs="$HOME/ddos/phantomjs-2.1.1-linux-x86_64/bin/phantomjs"' >> $HOME/.aliases
+#     echo 'export QT_QPA_PLATFORM=offscreen' >> $HOME/.bash_profile
+# #    echo "
+# ## L7 DoS Demo
+# #52.16.253.235   www.trnava-live.sk
+# #    " >> /etc/hosts
+# fi
+# printLine
 
 cd $originalPath
 
