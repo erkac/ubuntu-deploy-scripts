@@ -73,6 +73,7 @@ plugins=(
     docker
     zsh-autosuggestions
     zsh-syntax-highlighting
+    autojump
 #    colorize
 #    virtualen
 )
