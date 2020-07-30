@@ -36,7 +36,7 @@ if [ "${amIRoot}" == "root" ]; then
     fi
 
     echo "Installing usefull software..."
-    apt -y install nmap screen bzip2 psmisc htop mc grc iputils-ping wafw00f grc zsh autojump
+    apt -y install nmap screen bzip2 psmisc htop mc grc iputils-ping grc zsh autojump
     printLine
 fi
 
