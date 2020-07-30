@@ -97,6 +97,12 @@ fi
 
 printLine
 
+echo "Set the variables git..."
+git config --global user.email "lubos@klokner.sk"
+git config --global user.name "lubos klokner"
+
+printLine
+
 #echo "iptables..."
 #${CURL_BIN} /etc/iptables.rules ${DOWNLOAD_HOST}/iptables.rules
 #echo "
