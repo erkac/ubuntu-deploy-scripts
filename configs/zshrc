@@ -71,6 +71,7 @@ ENABLE_CORRECTION="true"
 plugins=(
     git
     docker
+    docker-compose
     zsh-autosuggestions
     zsh-syntax-highlighting
     autojump
