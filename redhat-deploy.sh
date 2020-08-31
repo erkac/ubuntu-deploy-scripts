@@ -30,13 +30,12 @@ if [ "${amIRoot}" == "root" ]; then
     read QUESTION
     if [ "${QUESTION}" == "y" ]; then
         echo "Upgrade..."
-        apt update
-        apt -y upgrade
+        yum -y update
         printLine
     fi
 
     echo "Installing usefull software..."
-    apt -y install nmap screen bzip2 psmisc htop mc grc iputils-ping zsh autojump jq
+    yum -y install nmap screen bzip2 psmisc mc zsh
     printLine
 fi
 
@@ -81,6 +80,7 @@ echo
 echo "Installing plugins..."
 git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
 git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
+git clone git://github.com/wting/autojump.git && cd autojump && ./install.py
 
 echo
 echo "Copy zshrc..."
