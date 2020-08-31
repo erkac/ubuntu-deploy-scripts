@@ -45,6 +45,10 @@ mkdir -p $HOME/.vim/colors/
 cp configs/vim_colors_solarized.vim $HOME/.vim/colors/solarized.vim
 cp configs/vimrc $HOME/.vimrc
 chmod 644 $HOME/.vimrc
+echo "vim... installing plugins"
+curl -fLo $HOME/.vim/autoload/plug.vim --create-dirs \
+    https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+vim +PluginInstall +qall
 printLine
 
 if [ "$EUID" -eq 0 ]; then

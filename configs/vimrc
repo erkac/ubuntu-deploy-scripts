@@ -41,3 +41,13 @@ if has("syntax")
   filetype on
   au BufNewFile,BufRead iptables.rules set filetype=iptables
 endif"
+
+let g:vim_markdown_folding_disabled = 1
+
+call plug#begin('~/.vim/plugged')
+Plug 'vim-airline/vim-airline'
+Plug 'vim-airline/vim-airline-themes'
+call plug#end()
+
+let g:airline_powerline_fonts = 1
+
