@@ -89,13 +89,18 @@ chmod 644 $HOME/.zshrc
 
 printLine
 
+if [ "$EUID" -eq 0 ]; then
+  echo "Adding /usr/bin/zsh to /etc/shells"
+  echo "/usr/bin/zsh" >> /etc/shells
+fi
+
 QUESTION=""
 echo "Do you want to change default shell to zsh? (y/N)"
 read QUESTION
 if [ "${QUESTION}" == "y" ]; then
   if [ -f /usr/bin/zsh ]; then
     echo "Changing the default shell to zsh..."
-    chsh $USER -s /usr/bin/zsh
+    chsh $USER -s /bin/zsh
   fi
 fi
 
