@@ -46,7 +46,7 @@ cp configs/vimrc $HOME/.vimrc
 chmod 644 $HOME/.vimrc
 echo "vim... installing plugins"
 curl -fLo $HOME/.vim/autoload/plug.vim --create-dirs \
-    https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+    https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim || ( mkdir -p $HOME/.vim/autoload/ && cp -a configs/plug.vim $HOME/.vim/autoload/plug.vim )
 vim +PluginInstall +qall
 printLine
 
