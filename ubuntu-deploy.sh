@@ -20,17 +20,23 @@ fi
 
 }
 
+printLine
+echo "Ubuntu Customization Script..."
+printLine
+
 originalPath=`pwd`
 
 amIRoot=`whoami`
 if [ "${amIRoot}" == "root" ]; then
 
+    echo "Package System Update..."
+    apt update
+
     QUESTION=""
     echo "Do you want to upgrade the system? (y/N)"
     read QUESTION
     if [ "${QUESTION}" == "y" ]; then
-        echo "Upgrade..."
-        apt update
+        echo "Upgrading..."    
         apt -y upgrade
         printLine
     fi
@@ -38,8 +44,16 @@ if [ "${amIRoot}" == "root" ]; then
     echo "Installing usefull software..."
     apt -y install nmap screen bzip2 psmisc htop mc grc iputils-ping zsh autojump jq
     printLine
+else
+    echo "Package System Update..."
+    sudo apt update || echo "Update failed... Exiting." && exit 1
+
+    echo "Installing usefull software..."
+    sudo apt -y install nmap screen bzip2 psmisc htop mc grc iputils-ping zsh autojump jq || echo "Installation failed... Exiting." && exit 1
+    printLine
 fi
 
+echo
 echo "vim..."
 mkdir -p $HOME/.vim/colors/
 cp configs/vim_colors_solarized.vim $HOME/.vim/colors/solarized.vim
@@ -51,13 +65,14 @@ curl -fLo $HOME/.vim/autoload/plug.vim --create-dirs \
 vim +PluginInstall +qall
 printLine
 
+echo
 if [ "$EUID" -eq 0 ]; then
   echo "Add entries to hosts file..."
   addHosts
 fi
 
 if [ ! -f /usr/bin/zsh ]; then
-  echo "Error: No zsh installed... exiting..."
+  echo "Error: No zsh installed... Exiting."
   exit 1
   printLine
 fi
@@ -90,22 +105,25 @@ chmod 644 $HOME/.zshrc
 printLine
 
 QUESTION=""
+echo
 echo "Do you want to change default shell to zsh? (y/N)"
 read QUESTION
 if [ "${QUESTION}" == "y" ]; then
   if [ -f /usr/bin/zsh ]; then
     echo "Changing the default shell to zsh..."
-    chsh $USER -s /usr/bin/zsh
+    sudo chsh $USER -s /usr/bin/zsh
   fi
 fi
 
 printLine
 
+echo
 echo "Set the variables git..."
 git config --global user.email "lubos@klokner.sk"
 git config --global user.name "lubos klokner"
 
 printLine
+echo
 
 #echo "iptables..."
 #${CURL_BIN} /etc/iptables.rules ${DOWNLOAD_HOST}/iptables.rules
