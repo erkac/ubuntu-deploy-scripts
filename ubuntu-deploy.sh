@@ -1,83 +1,23 @@
 #!/bin/bash
 
-CURL_BIN="curl -s -o"
-
-function printLine()
-{
-	echo "======================================="
-}
-
-function addHosts()
-{
-  if [ ! $( grep -c generic /etc/hosts ) -eq "1" ]; then
-echo "
-
-# generic
-8.8.8.8     google
-
-" >> /etc/hosts
-fi
-
-}
-
-printLine
-echo "Ubuntu Customization Script..."
-printLine
-
+###
+# Variables
+###
+interactive="1"
 originalPath=`pwd`
 
 ###
-# Software Management
+# Functions
 ###
-echo
-echo "System Package Management Update..."
-sudo apt update || ( echo "Update failed... Exiting." && exit 1 )
 
-amIRoot=`whoami`
-if [ "${amIRoot}" == "root" ]; then
-    echo
-    echo "Adding entries to hosts file..."
-    addHosts
-    printLine
+function usage()
+{
+  echo "usage: ubuntu-deploy.sh [[-s] | [-h]]"
+  exit
+}
 
-    QUESTION=""
-    echo
-    echo "Do you want to upgrade the system? (y/N)"
-    read QUESTION
-    if [ "${QUESTION}" == "y" ]; then
-        echo "Upgrading..."    
-        apt -y upgrade
-        printLine
-    fi
-fi
-
-echo
-echo "Installing usefull software..."
-sudo apt -y install nmap screen bzip2 psmisc htop mc grc iputils-ping zsh autojump jq || ( echo "Installation failed... Exiting." && exit 1 )
-printLine
-
-
-###
-# vim
-###
-echo
-echo "vim..."
-mkdir -p $HOME/.vim/colors/
-cp configs/vim_colors_solarized.vim $HOME/.vim/colors/solarized.vim
-cp configs/vimrc $HOME/.vimrc
-chmod 644 $HOME/.vimrc
-echo "vim... installing plugins"
-curl -fLo $HOME/.vim/autoload/plug.vim --create-dirs \
-    https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
-vim +PluginInstall +qall
-printLine
-
-
-###
-# zsh & oh-my-zsh
-###
-if [ -f /usr/bin/zsh ]; then
-
+function tuneZsh()
+{
   echo
   echo "Tuning Shell..."
 
@@ -105,21 +45,137 @@ if [ -f /usr/bin/zsh ]; then
   chmod 644 $HOME/.zshrc
 
   printLine
+}
 
-  QUESTION=""
+function question()
+{
+  questionInput=""
   echo
-  echo "Do you want to change default shell to zsh? (y/N)"
-  read QUESTION
-  if [ "${QUESTION}" == "y" ]; then
-    echo "Changing the default shell to zsh..."
-    sudo chsh $USER -s /usr/bin/zsh
-  else
-    echo "Please run zsh to test it..."
+  echo "$1"
+  read questionInput
+}
+
+function changeShell()
+{
+  if [ "${interactive}" == "1" ]; then
+    question "Do you want to change default shell to zsh? (y/N)"
+    
+    if [ "${questionInput}" == "y" ]; then
+      echo "Changing the default shell to zsh..."
+      sudo chsh $USER -s /usr/bin/zsh
+    else
+      echo "Please run zsh to test it..."
+    fi
   fi
+}
+
+function printLine()
+{
+	echo "======================================="
+}
+
+function addHosts()
+{
+  if [ ! $( grep -c generic /etc/hosts ) -eq "1" ]; then
+
+    echo
+    echo "Adding entries to hosts file..."
+
+echo "
+
+# generic
+8.8.8.8     google
+
+" >> /etc/hosts
+
+    printLine
+fi
+
+}
+
+###
+# Main Script
+###
+
+while [ "$1" != "" ]; do
+    case $1 in
+        -s | --script-mode )    interactive=0
+                                ;;
+        -h | --help )           usage
+                                exit
+                                ;;
+        * )                     usage
+                                exit 1
+    esac
+    shift
+done
+
+printLine
+echo "Ubuntu Customization Script..."
+printLine
+
+###
+# General system tuning
+###
+
+if [ "${EUID}" == "0" ]; then
+  addHosts
+fi
+
+###
+# Software Management
+###
+
+echo
+echo "System Package Management Update..."
+sudo apt update || ( echo "Error: apt update failed... Exiting." && exit 1 )
+
+if [ "${EUID}" == "0" ]; then
+    question "Do you want to upgrade the system? (y/N)"
+    
+    if [ "${questionInput}" == "y" ]; then
+        echo "Upgrading..."    
+        apt -y upgrade
+        printLine
+    fi
+fi
+
+echo
+echo "Installing usefull software..."
+if [ "${interactive}" == "1" ]; then
+    sudo apt install nmap screen bzip2 psmisc htop mc grc iputils-ping zsh autojump jq || ( echo "Installation failed... Exiting." && exit 1 )
+else
+    sudo apt -y install nmap screen bzip2 psmisc htop mc grc iputils-ping zsh autojump jq || ( echo "Installation failed... Exiting." && exit 1 )
+fi
+printLine
+
+###
+# vim
+###
+
+echo
+echo "vim..."
+mkdir -p $HOME/.vim/colors/
+cp configs/vim_colors_solarized.vim $HOME/.vim/colors/solarized.vim
+cp configs/vimrc $HOME/.vimrc
+chmod 644 $HOME/.vimrc
+echo "vim... installing plugins"
+curl -fLo $HOME/.vim/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+vim +PluginInstall +qall
+printLine
+
+
+###
+# zsh & oh-my-zsh
+###
+if [ -f /usr/bin/zsh ]; then
+
+  tuneZsh
+  
+  changeShell
 
 else
-  echo "Error: No zsh installed... Exiting."
-  exit 1
+  echo "Error: No zsh installed..."
   printLine
 fi
 
