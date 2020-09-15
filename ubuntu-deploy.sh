@@ -26,13 +26,22 @@ printLine
 
 originalPath=`pwd`
 
+###
+# Software Management
+###
+echo
+echo "System Package Management Update..."
+sudo apt update || ( echo "Update failed... Exiting." && exit 1 )
+
 amIRoot=`whoami`
 if [ "${amIRoot}" == "root" ]; then
-
-    echo "Package System Update..."
-    apt update
+    echo
+    echo "Adding entries to hosts file..."
+    addHosts
+    printLine
 
     QUESTION=""
+    echo
     echo "Do you want to upgrade the system? (y/N)"
     read QUESTION
     if [ "${QUESTION}" == "y" ]; then
@@ -40,19 +49,17 @@ if [ "${amIRoot}" == "root" ]; then
         apt -y upgrade
         printLine
     fi
-
-    echo "Installing usefull software..."
-    apt -y install nmap screen bzip2 psmisc htop mc grc iputils-ping zsh autojump jq
-    printLine
-else
-    echo "Package System Update..."
-    sudo apt update || echo "Update failed... Exiting." && exit 1
-
-    echo "Installing usefull software..."
-    sudo apt -y install nmap screen bzip2 psmisc htop mc grc iputils-ping zsh autojump jq || echo "Installation failed... Exiting." && exit 1
-    printLine
 fi
 
+echo
+echo "Installing usefull software..."
+sudo apt -y install nmap screen bzip2 psmisc htop mc grc iputils-ping zsh autojump jq || ( echo "Installation failed... Exiting." && exit 1 )
+printLine
+
+
+###
+# vim
+###
 echo
 echo "vim..."
 mkdir -p $HOME/.vim/colors/
@@ -65,60 +72,64 @@ curl -fLo $HOME/.vim/autoload/plug.vim --create-dirs \
 vim +PluginInstall +qall
 printLine
 
-echo
-if [ "$EUID" -eq 0 ]; then
-  echo "Add entries to hosts file..."
-  addHosts
-fi
 
-if [ ! -f /usr/bin/zsh ]; then
+###
+# zsh & oh-my-zsh
+###
+if [ -f /usr/bin/zsh ]; then
+
+  echo
+  echo "Tuning Shell..."
+
+  echo
+  echo "Installing Oh-my-zsh..."
+  curl -o install.sh -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh
+  chmod +x install.sh
+  sh ./install.sh --unattended
+
+  echo
+  echo "Installing powerlevel10k theme..."
+  git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/themes/powerlevel10k
+  cp configs/p10kzsh $HOME/.p10k.zsh
+  chmod 644 $HOME/.p10k.zsh
+
+  echo
+  echo "Installing plugins..."
+  git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
+  git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
+  git clone https://github.com/zsh-users/zsh-completions ${ZSH_CUSTOM:=~/.oh-my-zsh/custom}/plugins/zsh-completions
+
+  echo
+  echo "Copy zshrc..."
+  cp configs/zshrc $HOME/.zshrc
+  chmod 644 $HOME/.zshrc
+
+  printLine
+
+  QUESTION=""
+  echo
+  echo "Do you want to change default shell to zsh? (y/N)"
+  read QUESTION
+  if [ "${QUESTION}" == "y" ]; then
+    echo "Changing the default shell to zsh..."
+    sudo chsh $USER -s /usr/bin/zsh
+  else
+    echo "Please run zsh to test it..."
+  fi
+
+else
   echo "Error: No zsh installed... Exiting."
   exit 1
   printLine
 fi
 
-echo
-echo "Shell..."
-
-echo
-echo "Installing Oh-my-zsh..."
-curl -o install.sh -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh
-chmod +x install.sh
-sh ./install.sh --unattended
-
-echo
-echo "Installing powerlevel10k theme..."
-git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/themes/powerlevel10k
-cp configs/p10kzsh $HOME/.p10k.zsh
-chmod 644 $HOME/.p10k.zsh
-
-echo
-echo "Installing plugins..."
-git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
-git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
-
-echo
-echo "Copy zshrc..."
-cp configs/zshrc $HOME/.zshrc
-chmod 644 $HOME/.zshrc
-
 printLine
 
-QUESTION=""
+###
+# git variables
+###
 echo
-echo "Do you want to change default shell to zsh? (y/N)"
-read QUESTION
-if [ "${QUESTION}" == "y" ]; then
-  if [ -f /usr/bin/zsh ]; then
-    echo "Changing the default shell to zsh..."
-    sudo chsh $USER -s /usr/bin/zsh
-  fi
-fi
-
-printLine
-
-echo
-echo "Set the variables git..."
+echo "Setting the GIT variables..."
 git config --global user.email "lubos@klokner.sk"
 git config --global user.name "lubos klokner"
 
@@ -165,6 +176,3 @@ echo
 # printLine
 
 cd $originalPath
-
-# TODO/Issues
-# - for some reason the instalation of the oh-my-zsh fails because it is instaled into \~ subfolder instead of ~ for non-root users

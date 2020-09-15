@@ -74,6 +74,7 @@ plugins=(
     docker-compose
     zsh-autosuggestions
     zsh-syntax-highlighting
+    zsh-completions
     autojump
 #    colorize
 #    virtualen
