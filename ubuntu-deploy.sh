@@ -66,6 +66,9 @@ function changeShell()
     else
       echo "Please run zsh to test it..."
     fi
+  else
+    echo "Changing the default shell to zsh..."
+    sudo chsh $USER -s /usr/bin/zsh
   fi
 }
 
@@ -161,7 +164,7 @@ cp configs/vimrc $HOME/.vimrc
 chmod 644 $HOME/.vimrc
 echo "vim... installing plugins"
 curl -fLo $HOME/.vim/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
-vim +PluginInstall +qall
+vim +PlugInstall +qall
 printLine
 
 
