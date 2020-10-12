@@ -151,6 +151,14 @@ function update {
     apt update && apt upgrade
 }
 
+# temp folder
+alias tmp=' cd $(mktemp -d)'
+
+# cheat.sh
+function cheat {
+    curl cheat.sh/$1
+}
+
 ### Fix slowness of pastes with zsh-syntax-highlighting.zsh
  pasteinit() {
    OLD_SELF_INSERT=${${(s.:.)widgets[self-insert]}[2,3]}
