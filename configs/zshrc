@@ -76,7 +76,7 @@ plugins=(
     zsh-syntax-highlighting
     zsh-completions
     autojump
-#    colorize
+    colorize
 #    virtualen
 )
 
