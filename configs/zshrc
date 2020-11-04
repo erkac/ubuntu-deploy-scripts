@@ -77,6 +77,7 @@ plugins=(
     zsh-completions
     autojump
     colorize
+    kubectl
 #    virtualen
 )
 
