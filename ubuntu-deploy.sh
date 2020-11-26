@@ -104,6 +104,7 @@ while [ "$1" != "" ]; do
     case $1 in
         -s | --script-mode )    interactive=0
                                 ;;
+        -u | --upgrade )        os_upgrade=1
         -h | --help )           usage
                                 exit
                                 ;;
@@ -133,22 +134,31 @@ echo
 echo "System Package Management Update..."
 sudo apt update || ( echo "Error: apt update failed... Exiting." && exit 1 )
 
-if [ "${EUID}" == "0" ]; then
-    question "Do you want to upgrade the system? (y/N)"
-    
-    if [ "${questionInput}" == "y" ]; then
-        echo "Upgrading..."    
-        apt -y upgrade
+if [ "${interactive}" == "1" ]; then
+  question "Do you want to upgrade the system? (y/N)"
+      if [ "${questionInput}" == "y" ]; then
+        echo "Upgrading OS..."    
+        sudo apt -y upgrade
         printLine
     fi
+else
+  if [ "$os_upgrade" == "1" ]; then
+    echo "Upgrading OS..."
+    sudo apt -y upgrade
+    printLine
+  fi
+fi
+    
+    
+
 fi
 
 echo
 echo "Installing usefull software..."
 if [ "${interactive}" == "1" ]; then
-    sudo apt install nmap screen bzip2 psmisc htop mc grc iputils-ping zsh autojump jq python3-pygments || ( echo "Installation failed... Exiting." && exit 1 )
+    sudo apt install nmap screen bzip2 psmisc htop mc grc iputils-ping zsh autojump jq python3-pygments http || ( echo "Installation failed... Exiting." && exit 1 )
 else
-    sudo apt -y install nmap screen bzip2 psmisc htop mc grc iputils-ping zsh autojump jq python3-pygments || ( echo "Installation failed... Exiting." && exit 1 )
+    sudo apt -y install nmap screen bzip2 psmisc htop mc grc iputils-ping zsh autojump jq python3-pygments http || ( echo "Installation failed... Exiting." && exit 1 )
 fi
 printLine
 
