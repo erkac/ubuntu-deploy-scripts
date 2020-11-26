@@ -153,9 +153,9 @@ fi
 echo
 echo "Installing usefull software..."
 if [ "${interactive}" == "1" ]; then
-    sudo apt install nmap screen bzip2 psmisc htop mc grc iputils-ping zsh autojump jq python3-pygments http || ( echo "Installation failed... Exiting." && exit 1 )
+    sudo apt install nmap screen bzip2 psmisc htop mc grc iputils-ping zsh autojump jq python3-pygments httpie || ( echo "Installation failed... Exiting." && exit 1 )
 else
-    sudo apt -y install nmap screen bzip2 psmisc htop mc grc iputils-ping zsh autojump jq python3-pygments http || ( echo "Installation failed... Exiting." && exit 1 )
+    sudo apt -y install nmap screen bzip2 psmisc htop mc grc iputils-ping zsh autojump jq python3-pygments httpie || ( echo "Installation failed... Exiting." && exit 1 )
 fi
 printLine
 
