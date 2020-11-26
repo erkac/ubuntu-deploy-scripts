@@ -149,10 +149,6 @@ else
     printLine
   fi
 fi
-    
-    
-
-fi
 
 echo
 echo "Installing usefull software..."
