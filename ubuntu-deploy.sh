@@ -12,7 +12,7 @@ originalPath=`pwd`
 
 function usage()
 {
-  echo "usage: ubuntu-deploy.sh [[-s] | [-h]]"
+  echo "usage: ubuntu-deploy.sh [[-s] [-u] ] | [-h]]"
   exit
 }
 
@@ -105,6 +105,7 @@ while [ "$1" != "" ]; do
         -s | --script-mode )    interactive=0
                                 ;;
         -u | --upgrade )        os_upgrade=1
+                                ;;
         -h | --help )           usage
                                 exit
                                 ;;
