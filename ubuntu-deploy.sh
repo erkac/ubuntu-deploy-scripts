@@ -199,6 +199,13 @@ echo "Setting the GIT variables..."
 git config --global user.email "lubos@klokner.sk"
 git config --global user.name "lubos klokner"
 
+###
+# install exa
+###
+wget https://github.com/ogham/exa/releases/download/v0.9.0/exa-linux-x86_64-0.9.0.zip
+unzip exa-linux-x86_64-0.9.0.zip
+mv exa-linux-x86_64 /usr/local/bin/exa
+
 printLine
 echo
 
