@@ -6,13 +6,38 @@
 interactive="1"
 originalPath=`pwd`
 
+
+
 ###
 # Functions
 ###
 
+function detect_linux()
+{
+  if [ -f "/etc/os-release" ]; then
+    . /etc/os-release
+
+    case $ID in
+      ubuntu )    interactive=0
+                            ;;
+      centos )    os_upgrade=1
+                            ;;
+      * )         usage
+                  exit 1
+    esac
+  else
+    printError "Unable to detect Linux distribution!"
+    exit 1
+  fi
+}
+
 function usage()
 {
   echo "usage: ubuntu-deploy.sh [[-s] [-u] ] | [-h]]"
+  echo " -h  - help"
+  echo " -s  - silend/script mode"
+  echo " -u  - upgrade OS"
+  echo
   exit
 }
 
@@ -77,6 +102,15 @@ function printLine()
 	echo "======================================="
 }
 
+function printError()
+{
+	echo "======================================="
+  echo "ERROR: $1"
+	echo "======================================="
+}
+
+
+
 function addHosts()
 {
   if [ ! $( grep -c generic /etc/hosts ) -eq "1" ]; then
@@ -116,8 +150,10 @@ while [ "$1" != "" ]; do
 done
 
 printLine
-echo "Ubuntu Customization Script..."
+echo "Linux Customization Script..."
 printLine
+
+detect_linux
 
 ###
 # General system tuning
@@ -153,9 +189,9 @@ fi
 echo
 echo "Installing usefull software..."
 if [ "${interactive}" == "1" ]; then
-  sudo apt install nmap screen bzip2 psmisc htop mc grc iputils-ping zsh autojump jq python3-pygments ruby-albino httpie || ( echo "Installation failed... Exiting." && exit 1 )
+  sudo apt install nmap screen bzip2 psmisc htop mc grc iputils-ping zsh autojump jq python3-pygments httpie || ( echo "Installation failed... Exiting." && exit 1 )
 else
-  sudo apt -y install nmap screen bzip2 psmisc htop mc grc iputils-ping zsh autojump jq python3-pygments ruby-albino httpie || ( echo "Installation failed... Exiting." && exit 1 )
+  sudo apt -y install nmap screen bzip2 psmisc htop mc grc iputils-ping zsh autojump jq python3-pygments httpie || ( echo "Installation failed... Exiting." && exit 1 )
 fi
 printLine
 
@@ -210,44 +246,5 @@ sudo mv exa-linux-x86_64 /usr/local/bin/exa
 
 printLine
 echo
-
-#echo "iptables..."
-#${CURL_BIN} /etc/iptables.rules ${DOWNLOAD_HOST}/iptables.rules
-#echo "
-##!/bin/sh
-#iptables-restore < /etc/iptables.rules
-#exit 0
-#" > /etc/network/if-pre-up.d/iptablesload
-#chmod 755 /etc/network/if-pre-up.d/iptablesload
-#/etc/network/if-pre-up.d/iptablesload
-#printLine
-
-# QUESTION=""
-# echo "Deploy H4X0r t00lZ? (y/N)"
-# read QUESTION
-# if [ "${QUESTION}" == "y" ]; then
-#     mkdir -p $HOME/ddos
-#     apt-get install slowhttptest
-   
-#     ${CURL_BIN} $HOME/ddos/httpflooder.pl https://raw.githubusercontent.com/ddusnoki/httpflooder/master/httpflooder/httpflooder.pl
-#     chmod 755 $HOME/ddos/httpflooder.pl
-
-#     cp ./tools/hulk.py $HOME/ddos/hulk.py
-#     chmod 755 $HOME/ddos/hulk.py
-
-#     ${CURL_BIN} $HOME/ddos/phantomjs-2.1.1-linux-x86_64.tar.bz2 https://bitbucket.org/ariya/phantomjs/downloads/phantomjs-2.1.1-linux-x86_64.tar.bz2
-#     cp ./tools/L7DDOS.js $HOME/ddos/L7DDOS.js
-#     cd $HOME/ddos/
-#     tar xvjf phantomjs-2.1.1-linux-x86_64.tar.bz2
-
-#     echo 'export QT_QPA_PLATFORM="offscreen"' >> $HOME/.bashrc
-#     echo 'alias phantomjs="$HOME/ddos/phantomjs-2.1.1-linux-x86_64/bin/phantomjs"' >> $HOME/.aliases
-#     echo 'export QT_QPA_PLATFORM=offscreen' >> $HOME/.bash_profile
-# #    echo "
-# ## L7 DoS Demo
-# #52.16.253.235   www.trnava-live.sk
-# #    " >> /etc/hosts
-# fi
-# printLine
 
 cd $originalPath

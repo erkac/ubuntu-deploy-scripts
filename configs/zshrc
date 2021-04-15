@@ -115,6 +115,22 @@ ZSH_COLORIZE_TOOL="pygmentize"
 
 POWERLEVEL9K_SHORTEN_DIR_LENGTH=2
 
+# GLOBAL ALIAS
+globalias()
+{
+   # expand globals of more than 1 character and not beginning with G
+   if [[ ( $LBUFFER =~ ' [A-FH-Z0-9][A-Z0-9]+$' ) ]]
+   then
+     zle _expand_alias
+     zle expand-word
+   fi
+   zle self-insert
+}
+zle -N globalias
+bindkey " " globalias
+
+alias -g AWK=' | awk '\''{print $3 }'\'
+
 # ls colours
 EXA_BIN=`which exa`
 if [[ -f "$EXA_BIN" ]]; then
