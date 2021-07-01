@@ -167,6 +167,7 @@ printLine
 
 echo
 echo "vim..."
+sudo apt -y install vim
 mkdir -p $HOME/.vim/colors/
 cp configs/vim_colors_solarized.vim $HOME/.vim/colors/solarized.vim
 cp configs/vimrc $HOME/.vimrc
