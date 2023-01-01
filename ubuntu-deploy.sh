@@ -42,7 +42,9 @@ function tuneZsh()
   echo
   echo "Copy zshrc..."
   cp configs/zshrc $HOME/.zshrc
+  cp configs/grc.zsh $HOME/.grc.zsh
   chmod 644 $HOME/.zshrc
+  chmod 644 $HOME/.grc.zsh
 
   printLine
 }

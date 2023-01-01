@@ -146,22 +146,8 @@ if [[ -f "$EXA_BIN" ]]; then
     alias ltttt=' ls --tree -D -L 5 -I ${TREE_IGNORE}'
 fi
 
-# Add some colours
-alias colourify='/usr/bin/grc -es --colour=auto'
-alias configure='colourify ./configure'
-alias df='colourify df'
-alias diff='colourify diff'
-alias dig='colourify dig'
-alias gcc='colourify gcc'
-alias head='colourify head'
-alias ifconfig='colourify ifconfig'
-alias mount='colourify mount'
-alias netstat='colourify netstat'
-alias nmap='colourify nmap'
-alias ping='colourify ping'
-alias ps='colourify ps'
-alias tail='colourify tail'
-alias traceroute='colourify /usr/sbin/traceroute'
+# GRC - Add some colours
+[[ -s "$HOME/.grc.zsh" ]] && source $HOME/.grc.zsh
 
 alias hosts='sudo vim /etc/hosts'
 
