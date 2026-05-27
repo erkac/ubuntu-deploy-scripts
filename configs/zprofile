@@ -1,0 +1,1 @@
+[[ -o interactive && -z "$STY" ]] && exec screen -Rd "work"
