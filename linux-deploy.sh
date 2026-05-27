@@ -1,9 +1,11 @@
 #!/bin/bash
+set -euo pipefail
 
 ###
 # Variables
 ###
 interactive="1"
+os_upgrade=""
 originalPath=$(pwd)
 DISTRO=""
 PKG_CMD=""
@@ -73,7 +75,7 @@ function detect_linux()
 
 function addHosts()
 {
-    if [ ! $(grep -c generic /etc/hosts) -eq "1" ]; then
+    if ! grep -q "generic" /etc/hosts; then
         echo
         echo "Adding entries to hosts file..."
 echo "
@@ -109,9 +111,13 @@ function install_packages()
         echo
         echo "Installing useful software..."
         pkg_install nmap screen bzip2 psmisc htop mc grc iputils-ping zsh autojump jq \
-            python3-pygments httpie molly-guard fzf bat curl make eza dnsutils \
-            || (echo "Installation failed... Exiting." && exit 1)
-        pkg_install ruby-albino
+            python3-pygments httpie molly-guard fzf bat curl make eza dnsutils
+        pkg_install ruby-albino || true
+
+        # Debian/Ubuntu installs bat as batcat due to a name collision
+        if command -v batcat &>/dev/null && ! command -v bat &>/dev/null; then
+            sudo ln -sf /usr/bin/batcat /usr/local/bin/bat
+        fi
 
     else
         echo
@@ -123,8 +129,7 @@ function install_packages()
         # molly-guard and ruby-albino not available on CentOS/RHEL
         # dnsutils -> bind-utils, iputils-ping -> iputils, eza installed separately
         pkg_install nmap screen bzip2 psmisc htop mc grc iputils zsh autojump jq \
-            python3-pygments httpie fzf bat curl make bind-utils \
-            || (echo "Installation failed... Exiting." && exit 1)
+            python3-pygments httpie fzf bat curl make bind-utils
 
         install_eza_manual
     fi
@@ -134,10 +139,22 @@ function install_eza_manual()
 {
     echo
     echo "Installing eza manually..."
-    local eza_url
+
+    local arch eza_arch eza_url
+    arch=$(uname -m)
+    case $arch in
+        x86_64)  eza_arch="x86_64-unknown-linux-gnu" ;;
+        aarch64) eza_arch="aarch64-unknown-linux-gnu" ;;
+        armv7l)  eza_arch="arm-unknown-linux-gnueabihf" ;;
+        *)
+            echo "Warning: Unsupported architecture $arch for eza, skipping."
+            return
+            ;;
+    esac
+
     eza_url=$(curl -s https://api.github.com/repos/eza-community/eza/releases/latest \
         | grep "browser_download_url" \
-        | grep "eza_x86_64-unknown-linux-gnu.tar.gz\"" \
+        | grep "eza_${eza_arch}.tar.gz\"" \
         | cut -d '"' -f 4)
 
     if [ -z "$eza_url" ]; then
@@ -177,27 +194,42 @@ function tuneZsh()
     echo
     echo "Tuning Shell..."
 
-    echo
-    echo "Installing Oh-my-zsh..."
-    curl -o install.sh -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh
-    chmod +x install.sh
-    sh ./install.sh --unattended
+    if [ ! -d "$HOME/.oh-my-zsh" ]; then
+        echo
+        echo "Installing Oh-my-zsh..."
+        curl -o /tmp/omz-install.sh -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh
+        chmod +x /tmp/omz-install.sh
+        sh /tmp/omz-install.sh --unattended
+        rm -f /tmp/omz-install.sh
+    else
+        echo "Oh-my-zsh already installed, skipping."
+    fi
 
     echo
     echo "Installing powerlevel10k theme..."
-    git clone --depth=1 https://github.com/romkatv/powerlevel10k.git \
-        ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/themes/powerlevel10k
+    if [ ! -d "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k" ]; then
+        git clone --depth=1 https://github.com/romkatv/powerlevel10k.git \
+            "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k"
+    else
+        echo "powerlevel10k already installed, skipping."
+    fi
     cp configs/p10kzsh $HOME/.p10k.zsh
     chmod 644 $HOME/.p10k.zsh
 
     echo
     echo "Installing plugins..."
-    git clone https://github.com/zsh-users/zsh-autosuggestions \
-        ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
-    git clone https://github.com/zsh-users/zsh-syntax-highlighting.git \
-        ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
-    git clone https://github.com/zsh-users/zsh-completions \
-        ${ZSH_CUSTOM:=~/.oh-my-zsh/custom}/plugins/zsh-completions
+    if [ ! -d "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-autosuggestions" ]; then
+        git clone https://github.com/zsh-users/zsh-autosuggestions \
+            "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-autosuggestions"
+    fi
+    if [ ! -d "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting" ]; then
+        git clone https://github.com/zsh-users/zsh-syntax-highlighting.git \
+            "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting"
+    fi
+    if [ ! -d "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-completions" ]; then
+        git clone https://github.com/zsh-users/zsh-completions \
+            "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-completions"
+    fi
 
     echo
     echo "Copy zshrc..."
@@ -242,7 +274,17 @@ function changeShell()
 # Main Script
 ###
 
-while [ "$1" != "" ]; do
+# Ensure we run from the script's own directory so configs/ is always reachable
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$SCRIPT_DIR"
+if [ ! -d "configs" ]; then
+    printError "configs/ directory not found next to this script."
+    exit 1
+fi
+
+trap 'printError "Script failed at line $LINENO"' ERR
+
+while (( $# )); do
     case $1 in
         -s | --script-mode )    interactive=0
                                 ;;
@@ -268,7 +310,7 @@ printLine
 # General system tuning
 ###
 
-if [ "${EUID}" == "0" ]; then
+if [ "$EUID" -eq 0 ]; then
     addHosts
 fi
 
@@ -279,9 +321,9 @@ fi
 echo
 echo "System Package Management Update..."
 if [ "$DISTRO" == "debian" ]; then
-    sudo apt update || (echo "Error: apt update failed... Exiting." && exit 1)
+    sudo apt update
 else
-    sudo $PKG_CMD makecache || (echo "Error: $PKG_CMD makecache failed... Exiting." && exit 1)
+    sudo $PKG_CMD makecache
 fi
 
 if [ "${interactive}" == "1" ]; then
@@ -350,9 +392,18 @@ printLine
 ###
 echo
 echo "Setting the GIT variables..."
-git config --global user.email "lubos@klokner.sk"
-git config --global user.name "lubos klokner"
+if [ "${interactive}" == "1" ]; then
+    question "Enter git email (leave blank for lubos@klokner.sk):"
+    git_email="${questionInput:-lubos@klokner.sk}"
+    question "Enter git name (leave blank for lubos klokner):"
+    git_name="${questionInput:-lubos klokner}"
+else
+    git_email="lubos@klokner.sk"
+    git_name="lubos klokner"
+fi
+git config --global user.email "$git_email"
+git config --global user.name "$git_name"
 
 printLine
 
-cd $originalPath
+cd "$originalPath"
