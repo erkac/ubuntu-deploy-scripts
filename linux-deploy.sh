@@ -251,6 +251,73 @@ function setupRootScreen()
     printLine
 }
 
+function install_docker()
+{
+    echo
+    echo "Installing Docker..."
+
+    if [ "$DISTRO" == "debian" ]; then
+        sudo apt -y install ca-certificates curl
+        sudo install -m 0755 -d /etc/apt/keyrings
+        sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg \
+            -o /etc/apt/keyrings/docker.asc
+        sudo chmod a+r /etc/apt/keyrings/docker.asc
+        echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] \
+https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo "$VERSION_CODENAME") stable" \
+            | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+        sudo apt update
+        sudo apt -y install docker-ce docker-ce-cli containerd.io \
+            docker-buildx-plugin docker-compose-plugin
+    else
+        sudo $PKG_CMD -y install yum-utils
+        sudo yum-config-manager --add-repo \
+            https://download.docker.com/linux/centos/docker-ce.repo
+        sudo $PKG_CMD -y install docker-ce docker-ce-cli containerd.io \
+            docker-buildx-plugin docker-compose-plugin
+    fi
+
+    sudo systemctl enable --now docker
+    sudo usermod -aG docker "$USER"
+    echo "Docker installed. Log out and back in for group membership to take effect."
+    printLine
+}
+
+function harden_ssh()
+{
+    local sshd_config="/etc/ssh/sshd_config"
+    local backup="${sshd_config}.bak.$(date +%Y%m%d%H%M%S)"
+
+    echo
+    echo "WARNING: This will disable password authentication and root SSH login."
+    echo "Make sure your SSH public key is already in ~/.ssh/authorized_keys"
+    echo "before proceeding, or you will be locked out."
+    question "Are you sure you want to harden SSH? (y/N)"
+    if [ "${questionInput}" != "y" ]; then
+        echo "SSH hardening skipped."
+        return
+    fi
+
+    echo "Backing up $sshd_config to $backup..."
+    sudo cp "$sshd_config" "$backup"
+
+    echo "Applying SSH hardening..."
+    # Each sed handles both commented-out and active versions of the setting
+    sudo sed -i 's/^#\?PermitRootLogin.*/PermitRootLogin no/' "$sshd_config"
+    sudo sed -i 's/^#\?PasswordAuthentication.*/PasswordAuthentication no/' "$sshd_config"
+    sudo sed -i 's/^#\?PermitEmptyPasswords.*/PermitEmptyPasswords no/' "$sshd_config"
+
+    echo "Validating config..."
+    sudo sshd -t || (
+        printError "sshd config validation failed — restoring backup"
+        sudo cp "$backup" "$sshd_config"
+        exit 1
+    )
+
+    sudo systemctl restart sshd
+    echo "SSH hardened. Password authentication and root login are now disabled."
+    printLine
+}
+
 function changeShell()
 {
     local zsh_path
@@ -386,6 +453,28 @@ fi
 setupRootScreen
 
 printLine
+
+###
+# Docker
+###
+
+if [ "${interactive}" == "1" ]; then
+    question "Do you want to install Docker? (y/N)"
+    if [ "${questionInput}" == "y" ]; then
+        install_docker
+    fi
+fi
+
+###
+# SSH hardening
+###
+
+if [ "${interactive}" == "1" ]; then
+    question "Do you want to harden SSH (disable password auth and root login)? (y/N)"
+    if [ "${questionInput}" == "y" ]; then
+        harden_ssh
+    fi
+fi
 
 ###
 # git variables
