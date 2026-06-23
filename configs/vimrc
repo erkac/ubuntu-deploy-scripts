@@ -51,3 +51,7 @@ call plug#end()
 
 let g:airline_powerline_fonts = 1
 
+hi Normal      guibg=NONE ctermbg=NONE
+hi NonText     guibg=NONE ctermbg=NONE
+hi EndOfBuffer guibg=NONE ctermbg=NONE
+
