@@ -1,2 +1,4 @@
 hardstatus alwayslastline
 hardstatus string '%{= kG}[%H]%{g}[%= %-Lw%{r}(%{W}%n*%f%t%{r})%{w}%+Lw%= %{g}][%{B}%c%{g}]'
+termcapinfo xterm* ti@:te@
+
