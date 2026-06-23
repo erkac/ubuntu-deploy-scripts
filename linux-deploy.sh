@@ -257,13 +257,15 @@ function install_docker()
     echo "Installing Docker..."
 
     if [ "$DISTRO" == "debian" ]; then
+        local docker_id
+        docker_id=$(. /etc/os-release && echo "$ID")  # "ubuntu" or "debian"
         sudo apt -y install ca-certificates curl
         sudo install -m 0755 -d /etc/apt/keyrings
-        sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg \
+        sudo curl -fsSL "https://download.docker.com/linux/${docker_id}/gpg" \
             -o /etc/apt/keyrings/docker.asc
         sudo chmod a+r /etc/apt/keyrings/docker.asc
         echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] \
-https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo "$VERSION_CODENAME") stable" \
+https://download.docker.com/linux/${docker_id} $(. /etc/os-release && echo "$VERSION_CODENAME") stable" \
             | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
         sudo apt update
         sudo apt -y install docker-ce docker-ce-cli containerd.io \
